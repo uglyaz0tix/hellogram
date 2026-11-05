@@ -465,7 +465,7 @@ void BuildSectionButtons(SectionBuilder &builder) {
 						rpl::single(u"test"_q),
 						st::inviteLinkButton),
 					st::boxRowPadding);
-				testBtn->setTextTransform(Ui::RoundButton::TextTransform::NoTransform);
+				testBtn->setTextTransform(Ui::RoundButtonTextTransform::NoTransform);
 				testBtn->setClickedCallback([] {});
 
 				Ui::AddSkip(content);

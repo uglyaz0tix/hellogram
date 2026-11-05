@@ -2399,9 +2399,10 @@ void HistoryItem::markDeleted() {
 	if (_text.text.isEmpty()) {
 		_text.text = QString::fromUtf8("🗑️ [Удалено]");
 	} else {
-		_text.text = QString::fromUtf8("🗑️ ") + _text.text;
+		const auto prefix = QString::fromUtf8("🗑️ ");
+		_text.text = prefix + _text.text;
 		for (auto &entity : _text.entities) {
-			entity.offset() += 2;
+			entity.shiftRight(prefix.size());
 		}
 	}
 	_history->owner().requestItemTextRefresh(this);

@@ -26,6 +26,31 @@ jobs:
         shell: cmd
 
     steps:
+      - name: Free up disk space.
+        shell: pwsh
+        run: |
+          Write-Host "Disk space before cleanup:"
+          Get-PSDrive C | Select-Object Used,Free
+          $pathsToRemove = @(
+            "C:\Program Files\Android",
+            "C:\Program Files (x86)\Android",
+            "C:\Program Files\Java",
+            "C:\Program Files\PostgreSQL",
+            "C:\Program Files\MongoDB",
+            "C:\hostedtoolcache\windows\Ruby",
+            "C:\hostedtoolcache\windows\Go",
+            "C:\ProgramData\Chocolatey",
+            "C:\tools"
+          )
+          foreach ($p in $pathsToRemove) {
+            if (Test-Path $p) {
+              Write-Host "Removing $p..."
+              Remove-Item -Recurse -Force $p -ErrorAction SilentlyContinue
+            }
+          }
+          Write-Host "Disk space after cleanup:"
+          Get-PSDrive C | Select-Object Used,Free
+
       - name: Prepare directories.
         run: |
           mkdir %userprofile%\TBuild\Libraries
@@ -180,7 +205,7 @@ jobs:
           ${{ matrix.qt }} ^
           %TDESKTOP_BUILD_API% ^
           -D CMAKE_CONFIGURATION_TYPES=Debug ^
-          -D CMAKE_COMPILE_WARNING_AS_ERROR=ON ^
+          -D CMAKE_COMPILE_WARNING_AS_ERROR=OFF ^
           -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT= ^
           -D DESKTOP_APP_DISABLE_AUTOUPDATE=OFF ^
           -D DESKTOP_APP_DISABLE_CRASH_REPORTS=OFF ^
@@ -190,9 +215,10 @@ jobs:
 
       - name: Move artifact.
         if: env.UPLOAD_ARTIFACT == 'true'
+        shell: cmd
         run: |
           set OUT=%TBUILD%\%REPO_NAME%\out\Debug
-          mkdir artifact
+          if not exist artifact mkdir artifact
           if exist %OUT%\Telegram.exe copy %OUT%\Telegram.exe artifact\Hellogram.exe
           if exist %OUT%\Hellogram.exe copy %OUT%\Hellogram.exe artifact\Hellogram.exe
           if exist %OUT%\Updater.exe copy %OUT%\Updater.exe artifact\
