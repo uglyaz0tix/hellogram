@@ -192,7 +192,17 @@ jobs:
 
       - name: Free up some disk space.
         shell: bash
-        run: find $LibrariesPath '(' '(' ! '(' -name '*.lib' -o -name '*.a' -o -name '*.exe' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -path '*/nv-codec-headers/*' ')' -type f ')' -o -empty ')' -delete
+        run: find $LibrariesPath '(' '(' ! '(' -name '*.lib' -o -name '*.a' -o -name '*.exe' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -name '*.cpp' -o -name '*.c' -o -path '*/include/*' -o -path '*/tdesktop_rust/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -path '*/nv-codec-headers/*' ')' -type f ')' -o -empty ')' -delete
+
+      - name: Verify wallet_engine source.
+        shell: cmd
+        run: |
+          if not exist "%LibrariesPath%\tdesktop_rust\out\src\wallet_engine\wallet_engine.cpp" (
+            echo ERROR: wallet_engine.cpp missing from LibrariesPath!
+            exit /b 1
+          ) else (
+            echo OK: wallet_engine.cpp exists.
+          )
 
       - name: Telegram Desktop build.
         if: env.ONLY_CACHE == 'false'
